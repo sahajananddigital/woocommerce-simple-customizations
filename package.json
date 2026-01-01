@@ -9,9 +9,12 @@
         "build": "wp-scripts build",
         "start": "wp-scripts start",
         "format": "wp-scripts format",
-        "packages-update": "wp-scripts packages-update"
+        "packages-update": "wp-scripts packages-update",
+        "zip": "npm run build && wp-scripts plugin-zip",
+        "test:e2e": "playwright test"
     },
     "devDependencies": {
+        "@playwright/test": "^1.40.0",
         "@woocommerce/components": "^12.0.0",
         "@wordpress/api-fetch": "^6.0.0",
         "@wordpress/components": "^25.0.0",

@@ -7,3 +7,11 @@
 .vscode/
 .idea/
 *.zip
+wp-content/
+wp-config.php
+.env
+.htaccess
+debug.log
+.phpunit.result.cache
+/playwright-report/
+/test-results/

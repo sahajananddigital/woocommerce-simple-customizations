@@ -34,6 +34,17 @@ require_once WSC_PLUGIN_DIR . 'includes/class-wsc-core.php';
 
 // Initialize
 function wsc_init() {
+	if ( ! class_exists( 'WooCommerce' ) ) {
+		add_action( 'admin_notices', function() {
+			?>
+			<div class="notice notice-error">
+				<p><?php esc_html_e( 'WooCommerce Simple Customizations requires WooCommerce to be installed and active.', 'woocommerce-simple-customizations' ); ?></p>
+			</div>
+			<?php
+		} );
+		return;
+	}
+
 	if ( class_exists( 'WSC_Core' ) ) {
 		\WSC_Core::instance();
 	}

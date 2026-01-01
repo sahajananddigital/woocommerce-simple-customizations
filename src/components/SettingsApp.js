@@ -10,12 +10,20 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import CartLimitSettings from '../modules/CartLimit/CartLimitSettings';
+import PriceSuffixSettings from '../modules/PriceSuffix/PriceSuffixSettings';
+import Dashboard from './Dashboard';
+import AddCustomizationModal from './AddCustomizationModal';
 
 const SettingsApp = () => {
     const [ settings, setSettings ] = useState( {} );
     const [ isSaving, setIsSaving ] = useState( false );
     const [ isLoading, setIsLoading ] = useState( true );
     const [ notice, setNotice ] = useState( null );
+    
+    // Navigation State
+    const [ currentView, setCurrentView ] = useState( 'dashboard' ); // dashboard | module_edit
+    const [ activeModuleId, setActiveModuleId ] = useState( null );
+    const [ isAddModalOpen, setIsAddModalOpen ] = useState( false );
 
     useEffect( () => {
         apiFetch( { path: '/wsc/v1/settings' } ).then( ( data ) => {
@@ -48,40 +56,76 @@ const SettingsApp = () => {
         setSettings( ( prev ) => ( { ...prev, [ key ]: value } ) );
     };
 
+    const handleAddModule = ( moduleId ) => {
+        updateSetting( `${moduleId}_enabled`, true );
+        // Optionally switch to edit mode immediately
+        // setActiveModuleId( moduleId );
+        // setCurrentView( 'module_edit' );
+    };
+
+    const handleEditModule = ( moduleId ) => {
+        setActiveModuleId( moduleId );
+        setCurrentView( 'module_edit' );
+    };
+
+    const handleRemoveModule = ( moduleId ) => {
+        updateSetting( `${moduleId}_enabled`, false );
+    };
+
     if ( isLoading ) {
         return <Spinner />;
     }
 
+    // Render Module Content
+    const renderModuleSettings = () => {
+        if ( activeModuleId === 'cart_limit' ) {
+            return <CartLimitSettings settings={ settings } updateSetting={ updateSetting } />;
+        } else if ( activeModuleId === 'price_suffix' ) {
+            return <PriceSuffixSettings settings={ settings } updateSetting={ updateSetting } />;
+        }
+        return null;
+    };
+
     return (
         <div className="wsc-settings-app">
-            <h1>{ __( 'Simple Customizations', 'woocommerce-simple-customizations' ) }</h1>
+            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '20px', gap: '10px' }}>
+                 { currentView === 'module_edit' && (
+                     <Button variant="secondary" onClick={ () => setCurrentView( 'dashboard' ) }>
+                         &larr; { __( 'Back', 'woocommerce-simple-customizations' ) }
+                     </Button>
+                 ) }
+                 <h1 style={{margin: 0}}>{ __( 'Simple Customizations', 'woocommerce-simple-customizations' ) }</h1> 
+            </div>
+
             { notice && (
                 <Notice status={ notice.status } onRemove={ () => setNotice( null ) }>
                     { notice.content }
                 </Notice>
             ) }
             
-            <TabPanel
-                className="wsc-settings-tabs"
-                activeClass="is-active"
-                tabs={ [
-                    {
-                        name: 'cart-limit',
-                        title: __( 'Cart Limit', 'woocommerce-simple-customizations' ),
-                        className: 'tab-cart-limit',
-                    },
-                ] }
-            >
-                { ( tab ) => (
-                    <div className="wsc-tab-content">
-                        { tab.name === 'cart-limit' && (
-                            <CartLimitSettings settings={ settings } updateSetting={ updateSetting } />
-                        ) }
-                    </div>
-                ) }
-            </TabPanel>
+            { currentView === 'dashboard' ? (
+                <>
+                    <Dashboard 
+                        settings={ settings }
+                        onAddModule={ () => setIsAddModalOpen( true ) }
+                        onEditModule={ handleEditModule }
+                        onRemoveModule={ handleRemoveModule }
+                    />
+                    { isAddModalOpen && (
+                        <AddCustomizationModal 
+                            settings={ settings }
+                            onEnableModule={ handleAddModule }
+                            onClose={ () => setIsAddModalOpen( false ) }
+                        />
+                    ) }
+                </>
+            ) : (
+                <div className="wsc-module-edit-view">
+                    { renderModuleSettings() }
+                </div>
+            ) }
 
-            <div className="wsc-settings-footer">
+            <div className="wsc-settings-footer" style={{ marginTop: '30px', borderTop: '1px solid #ddd', paddingTop: '20px' }}>
                 <Button isPrimary isBusy={ isSaving } onClick={ handleSave }>
                     { __( 'Save Changes', 'woocommerce-simple-customizations' ) }
                 </Button>

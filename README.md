@@ -2,6 +2,12 @@
 
 A modular WooCommerce plugin to add simple customizations, featuring a React-based settings UI.
 
+
+## Requirements
+- WordPress 6.0+
+- WooCommerce installed and active
+- PHP 7.4+
+
 ## Features
 
 ### Cart Limits

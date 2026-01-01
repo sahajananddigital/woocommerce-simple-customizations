@@ -41,6 +41,7 @@ class WSC_Core {
 	 */
 	public function includes() {
 		require_once WSC_PLUGIN_DIR . 'includes/api/class-wsc-rest-controller.php';
+		require_once WSC_PLUGIN_DIR . 'includes/class-wsc-condition-evaluator.php';
 		
 		// Load Modules
 		$this->load_modules();

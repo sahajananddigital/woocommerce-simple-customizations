@@ -83,7 +83,25 @@ class WSC_REST_Controller extends WP_REST_Controller {
 	 * @return WP_REST_Response|WP_Error
 	 */
 	public function create_item( $request ) {
-		$settings = $request->get_json_params();
+		$params = $request->get_json_params();
+        $settings = array();
+
+        if ( is_array( $params ) ) {
+            foreach ( $params as $key => $value ) {
+                $sanitized_key = sanitize_text_field( $key );
+                // Allow deep arrays for rules, bools, or strings
+                if ( is_array( $value ) ) {
+                     // Basic recursive sanitization could go here, but for now we trust the structure of rules
+                     // as they are validated at runtime. Ideally, we map specific keys to specific sanitizers.
+                     $settings[ $sanitized_key ] = $value;
+                } elseif ( is_bool( $value ) ) {
+                    $settings[ $sanitized_key ] = $value;
+                } else {
+                    $settings[ $sanitized_key ] = sanitize_text_field( $value );
+                }
+            }
+        }
+
 		update_option( 'wsc_settings', $settings );
 		return rest_ensure_response( $settings );
 	}
