@@ -11,7 +11,8 @@
         "format": "wp-scripts format",
         "packages-update": "wp-scripts packages-update",
         "zip": "npm run build && wp-scripts plugin-zip",
-        "test:e2e": "playwright test"
+        "test:e2e": "playwright test",
+        "start:playground": "npx @wp-playground/cli server --blueprint=tests/e2e/blueprint.json --mount=./:/wordpress/wp-content/plugins/woocommerce-simple-customizations --mount=./tests/e2e/wsc-e2e-setup:/wordpress/wp-content/plugins/wsc-e2e-setup --port=9400"
     },
     "devDependencies": {
         "@playwright/test": "^1.40.0",

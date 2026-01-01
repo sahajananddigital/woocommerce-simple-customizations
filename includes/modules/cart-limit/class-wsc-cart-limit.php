@@ -80,7 +80,14 @@ class WSC_Cart_Limit {
 
             // Calculate current quantity in cart for this target
             $current_qty_in_cart = 0;
-            if ( WC()->cart ) {
+            
+            // Ensure cart is loaded especially in AJAX context
+            if ( isset( WC()->cart ) ) {
+                if ( WC()->cart->is_empty() && WC()->session && WC()->session->has_session() ) {
+                     WC()->cart->get_cart_from_session();
+                }
+
+                if ( WC()->cart->get_cart() ) {
                  foreach ( WC()->cart->get_cart() as $cart_item ) {
                     $c_product_id = $cart_item['product_id'];
                     
@@ -96,7 +103,9 @@ class WSC_Cart_Limit {
                         }
                     }
                 }
+                }
             }
+        }
 
             $total_potential_qty = $current_qty_in_cart + $quantity;
             
